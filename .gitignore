@@ -8,3 +8,4 @@ instance/
 *.sqlite
 *.sqlite3
 .env
+bills.db

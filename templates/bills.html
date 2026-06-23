@@ -1,38 +1,28 @@
-!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bills</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-</head>
-<body>
-    <header>
-        <h1>Bills</h1>
-    </header>
-
-    <main>
-        <h2>Add a Bill</h2>
 {% extends "base.html" %}
 
 {% block content %}
+<h1>Bills</h1>
+
+<h2>Add a New Bill</h2>
+
 <form method="POST" action="/bills">
-  <label for="vendor">Vendor</label>
-  <input type="text" id="vendor" name="vendor" required>
 
-  <label for="amount">Amount</label>
-  <input type="number" id="amount" name="amount" step="0.01" required>
+    <label for="vendor">Vendor</label>
+    <input type="text" id="vendor" name="vendor" required>
 
-  <label for="due_date">Due Date</label>
-  <input type="date" id="due_date" name="due_date" required>
+    <label for="amount">Amount</label>
+    <input type="number" id="amount" name="amount" step="0.01" required>
 
-  <label for="frequency">Frequency</label>
-  <select id="frequency" name="frequency" required>
-    <option value="">Select one</option>
-    <option value="monthly">Monthly</option>
-    <option value="weekly">Weekly</option>
-    <option value="yearly">Yearly</option>
-    <option value="one-time">One-time</option>
+    <label for="due_date">Due Date</label>
+    <input type="date" id="due_date" name="due_date" required>
+
+    <label for="frequency">Frequency</label>
+    <select id="frequency" name="frequency" required>
+        <option value="">Select one</option>
+        <option value="monthly">Monthly</option>
+        <option value="weekly">Weekly</option>
+        <option value="yearly">Yearly</option>
+        <option value="one-time">One-time</option>
   </select>
 
   <label for="notes">Notes</label>
@@ -40,11 +30,30 @@
 
   <button type="submit">Save Bill</button>
 </form>
-{% endblock %}
-    </main>
 
-    <footer>
-        <p>&copy; 2023 Ty Bill App. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+<h2>Saved Bills</h2>
+
+<table> 
+    <thead>
+        <tr>
+            <th>Vendor</th>
+            <th>Amount</th>
+            <th>Due Date</th>
+            <th>Frequency</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bill in bills %}
+        <tr>
+            <td>{{ bill["vendor"] }}</td>
+            <td>${{ bill["amount"] }}</td>
+            <td>{{ bill["due_date"] }}</td>
+            <td>{{ bill["frequency"] }}</td>
+            <td>{{ bill["notes"] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
