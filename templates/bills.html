@@ -51,6 +51,11 @@
             <td>{{ bill["due_date"] }}</td>
             <td>{{ bill["frequency"] }}</td>
             <td>{{ bill["notes"] }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('delete_bill', bill_id=bill['id']) }}">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

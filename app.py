@@ -37,5 +37,16 @@ def bills():
 
     return render_template("bills.html", bills=bills)
 
+@app.route("/delete/<int:bill_id>", methods=["POST"])
+def delete_bill(bill_id):
+    conn = get_db_connection()
+
+    conn.execute("DELETE FROM bills WHERE id = ?", (bill_id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("bills"))
+
 if __name__ == "__main__":
     app.run(debug=True)
