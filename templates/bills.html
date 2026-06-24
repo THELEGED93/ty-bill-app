@@ -3,35 +3,53 @@
 {% block content %}
 <h1>Bills</h1>
 
-<h2>Add a New Bill</h2>
+<div class="top-section">
 
-<form method="POST" action="/bills">
+    <div class="form-area">
 
-    <label for="vendor">Vendor</label>
-    <input type="text" id="vendor" name="vendor" required>
+        <h2 class="section-title">Add a New Bill</h2>
 
-    <label for="amount">Amount</label>
-    <input type="number" id="amount" name="amount" step="0.01" required>
+        <form method="POST" action="/bills">
+            <div class="form-group">
+                <label for="vendor">Vendor</label>
+                <input type="text" id="vendor" name="vendor" required>
+            </div>
 
-    <label for="due_date">Due Date</label>
-    <input type="date" id="due_date" name="due_date" required>
+        <div class="form-group">
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" name="amount" step="0.01" required>
+        </div>
 
-    <label for="frequency">Frequency</label>
-    <select id="frequency" name="frequency" required>
-        <option value="">Select one</option>
-        <option value="monthly">Monthly</option>
-        <option value="weekly">Weekly</option>
-        <option value="yearly">Yearly</option>
-        <option value="one-time">One-time</option>
-  </select>
+        <div class="form-group">
+            <label for="due_date">Due Date</label>
+            <input type="date" id="due_date" name="due_date" required>
+        </div>
+        <div class="form-group">
+            <label for="frequency">Frequency</label>
+            <select id="frequency" name="frequency" required>
+                <option value="">Select one</option>
+                <option value="monthly">Monthly</option>
+                <option value="weekly">Weekly</option>
+                <option value="yearly">Yearly</option>
+                <option value="one-time">One-time</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes"></textarea>
+        </div>
+    <button type="submit">Save Bill</button>
+        </form>
 
-  <label for="notes">Notes</label>
-  <textarea id="notes" name="notes"></textarea>
+    </div>
 
-  <button type="submit">Save Bill</button>
-</form>
+    <img class="bill-logo-side" 
+            src="{{ url_for('static', filename='form_logo.jpeg') }}" 
+            alt="Ty Bill App logo">
 
-<h2>Saved Bills</h2>
+</div>
+
+<h2 class="section-title">Saved Bills</h2>
 
 <table> 
     <thead>
