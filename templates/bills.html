@@ -51,6 +51,8 @@
 
 <h2 class="section-title">Saved Bills</h2>
 
+<h3 class = "total-bills">Total Saved Bills: ${{ "%.2f" | format(total) }}</h3>
+
 <table class="saved-bills-table"> 
     <colgroup>
         <col class="col-vendor;">
@@ -68,12 +70,13 @@
             <th>Frequency</th>
             <th>Notes</th>
             <th>Delete</th>
+            <th>Paid / Unpaid</th>
         </tr>
     </thead>
     <tbody>
         {% for bill in bills %}
         <tr>
-            <td>{{ bill["vendor"] }}</td>
+            <td class="vendor-name">{{ bill["vendor"] }}</td>
             <td>${{ bill["amount"] }}</td>
             <td>{{ bill["due_date"] }}</td>
             <td>{{ bill["frequency"] }}</td>
@@ -81,6 +84,17 @@
             <td>
                 <form method="POST" action="{{ url_for('delete_bill', bill_id=bill['id']) }}">
                     <button type="submit">Delete</button>
+                </form>
+            </td>
+            <td class="paid-unpaid">
+                <form method="POST" action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}">
+                    <button type="submit">
+                        {% if bill["paid"] %}
+                            Mark as Unpaid
+                        {% else %}
+                            Mark as Paid
+                        {% endif %}
+                    </button>
                 </form>
             </td>
         </tr>

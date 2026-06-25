@@ -6,5 +6,6 @@ CREATE TABLE bills (
     amount REAL NOT NULL,
     due_date TEXT NOT NULL,
     frequency TEXT NOT NULL,
-    notes TEXT
+    notes TEXT,
+    paid INTEGER NOT NULL DEFAULT 0
 );

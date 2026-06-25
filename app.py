@@ -32,16 +32,42 @@ def bills():
         return redirect(url_for("bills"))
     
     conn = get_db_connection()
-    bills = conn.execute("SELECT * FROM bills").fetchall()
+
+    bills = conn.execute("SELECT * FROM bills ORDER BY due_date ASC").fetchall()
+    
+    total = conn.execute( 
+        "SELECT COALESCE(SUM(CAST(amount AS REAL)), 0) AS total FROM bills"
+    ).fetchone()["total"]
     conn.close()
 
-    return render_template("bills.html", bills=bills)
+    return render_template("bills.html", bills=bills, total=total)
 
 @app.route("/delete/<int:bill_id>", methods=["POST"])
 def delete_bill(bill_id):
     conn = get_db_connection()
 
     conn.execute("DELETE FROM bills WHERE id = ?", (bill_id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("bills"))
+
+@app.route("/toggle_paid_status/<int:bill_id>", methods=["POST"])
+def toggle_paid_status(bill_id):
+    conn = get_db_connection()
+
+    bill = conn.execute(
+        "SELECT paid FROM bills WHERE id = ?",
+        (bill_id,)
+    ).fetchone()
+
+    new_paid_status = 0 if bill["paid"] else 1
+
+    conn.execute(
+        "UPDATE bills SET paid = ? WHERE id = ?",
+        (new_paid_status, bill_id)
+    )
 
     conn.commit()
     conn.close()
