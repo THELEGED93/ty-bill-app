@@ -49,9 +49,9 @@
 
 </div>
 
-<h2 class="section-title">Saved Bills</h2>
+<h2 class="section-title">Monthly Bills</h2>
 
-<h3 class = "total-bills">Total Saved Bills: ${{ "%.2f" | format(total) }}</h3>
+<h3 class = "total-bills">Average Monthly Due: ${{ "%.2f" | format(total) }}</h3>
 
 <table class="saved-bills-table"> 
     <colgroup>
@@ -70,7 +70,8 @@
             <th>Frequency</th>
             <th>Notes</th>
             <th>Delete</th>
-            <th>Paid / Unpaid</th>
+            <th>Status</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -86,16 +87,22 @@
                     <button type="submit">Delete</button>
                 </form>
             </td>
-            <td class="paid-unpaid">
-                <form method="POST" action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}">
-                    <button type="submit">
-                        {% if bill["paid"] %}
-                            Mark as Unpaid
-                        {% else %}
-                            Mark as Paid
-                        {% endif %}
-                    </button>
-                </form>
+            <td class="status-cell">
+            {% if bill["paid"] %}
+        <span class="status-paid">Paid</span>
+             {% else %}
+        <span class="status-unpaid">Unpaid</span>
+            {% endif %}
+            </td>
+
+        <td class="paid-unpaid">
+            <form method="POST" action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}">
+                {% if bill["paid"] %}
+            <button type="submit" class="status-unpaid">Mark as Unpaid</button>
+                {% else %}
+            <button type="submit" class="status-paid">Mark as Paid</button>
+        {% endif %}
+            </form>
             </td>
         </tr>
         {% endfor %}

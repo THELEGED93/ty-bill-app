@@ -64,6 +64,9 @@ def toggle_paid_status(bill_id):
 
     new_paid_status = 0 if bill["paid"] else 1
 
+    print("Old paid status:", bill["paid"])
+    print("New paid status:", new_paid_status)
+
     conn.execute(
         "UPDATE bills SET paid = ? WHERE id = ?",
         (new_paid_status, bill_id)
