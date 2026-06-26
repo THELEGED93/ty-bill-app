@@ -254,3 +254,38 @@ td.status-unpaid {
     font-weight: bold;
 
 }
+
+.manage-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.manage-cell form {
+    margin: 0;
+}
+
+.btn-edit {
+    background-color: #969ba0;
+    color: rgb(0, 0, 0);
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-delete {
+    background-color: #c27434;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.edit-bill-card {
+    max-width: 600px;
+    margin: 2rem auto;
+}

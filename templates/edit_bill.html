@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="edit-bill-card">
+    <h2 class="section-title">Edit Bill</h2>
+
+    <form method="POST" class="edit-bill-form">
+
+        <div class="form-group">
+            <label for="vendor">Vendor</label>
+            <input type="text" id="vendor" name="vendor" value="{{ bill['vendor'] }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" name="amount" step="0.01" min="0" value="{{ bill['amount'] }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="due_date">Due Date</label>
+            <input type="date" id="due_date" name="due_date" value="{{ bill['due_date'] }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="frequency">Frequency</label>
+            <select id="frequency" name="frequency" required>
+                <option value="monthly" {% if bill['frequency'] == 'monthly' %}selected{% endif %}>Monthly</option>
+                <option value="weekly" {% if bill['frequency'] == 'weekly' %}selected{% endif %}>Weekly</option>
+                <option value="bi-weekly" {% if bill['frequency'] == 'bi-weekly' %}selected{% endif %}>Bi-Weekly</option>
+                <option value="one-time" {% if bill['frequency'] == 'one-time' %}selected{% endif %}>One-Time</option>
+                <option value="yearly" {% if bill['frequency'] == 'yearly' %}selected{% endif %}>Yearly</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes">{{ bill['notes'] }}</textarea>
+        </div>
+
+        <div class="edit-actions">
+            <button type="submit" class="btn-save">Save Changes</button>
+            <a href="{{ url_for('bills') }}" class="btn-cancel">Cancel</a>
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}

@@ -77,5 +77,38 @@ def toggle_paid_status(bill_id):
 
     return redirect(url_for("bills"))
 
+@app.route("/edit/<int:bill_id>", methods=["GET", "POST"])
+def edit_bill(bill_id):
+    conn = get_db_connection()
+
+    if request.method == "POST":
+        vendor = request.form["vendor"]
+        amount = request.form["amount"]
+        due_date = request.form["due_date"]
+        frequency = request.form["frequency"]
+        notes = request.form["notes"]
+
+        conn.execute(
+            """
+            UPDATE bills
+            SET vendor = ?, amount = ?, due_date = ?, frequency = ?, notes = ?
+            WHERE id = ?
+            """,
+            (vendor, amount, due_date, frequency, notes, bill_id)
+        )
+
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("bills"))
+
+    bill = conn.execute(
+        "SELECT * FROM bills WHERE id = ?",
+        (bill_id,)
+    ).fetchone()
+
+    conn.close()
+
+    return render_template("edit_bill.html", bill=bill)
 if __name__ == "__main__":
     app.run(debug=True)
