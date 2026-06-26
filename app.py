@@ -36,7 +36,7 @@ def bills():
     bills = conn.execute("SELECT * FROM bills ORDER BY due_date ASC").fetchall()
     
     total = conn.execute( 
-        "SELECT COALESCE(SUM(CAST(amount AS REAL)), 0) AS total FROM bills"
+        "SELECT COALESCE(SUM(CAST(amount AS REAL)), 0) AS total FROM bills WHERE paid = 0"
     ).fetchone()["total"]
     conn.close()
 

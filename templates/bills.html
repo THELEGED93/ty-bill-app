@@ -51,7 +51,7 @@
 
 <h2 class="section-title">Monthly Bills</h2>
 
-<h3 class = "total-bills">Average Monthly Due: ${{ "%.2f" | format(total) }}</h3>
+<h3 class = "total-bills">Unpaid Monthly Due: ${{ "%.2f" | format(total) }}</h3>
 
 <table class="saved-bills-table"> 
     <colgroup>
@@ -78,29 +78,28 @@
         {% for bill in bills %}
         <tr>
             <td class="vendor-name">{{ bill["vendor"] }}</td>
-            <td>${{ bill["amount"] }}</td>
+            <td>${{ "%.2f" | format(bill["amount"] | float) }}</td>
             <td>{{ bill["due_date"] }}</td>
-            <td>{{ bill["frequency"] }}</td>
+            <td class="frequency">{{ bill["frequency"] }}</td>
             <td>{{ bill["notes"] }}</td>
             <td>
                 <form method="POST" action="{{ url_for('delete_bill', bill_id=bill['id']) }}">
                     <button type="submit">Delete</button>
                 </form>
             </td>
-            <td class="status-cell">
-            {% if bill["paid"] %}
-        <span class="status-paid">Paid</span>
-             {% else %}
-        <span class="status-unpaid">Unpaid</span>
-            {% endif %}
-            </td>
-
+            <td class="status-cell {% if bill['paid'] %}status-paid{% else %}status-unpaid{% endif %}">
+                {% if bill["paid"] %}
+                Paid
+                {% else %}
+                Unpaid
+                {% endif %}
+        </td>
         <td class="paid-unpaid">
             <form method="POST" action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}">
                 {% if bill["paid"] %}
-            <button type="submit" class="status-unpaid">Mark as Unpaid</button>
+            <button type="submit" class="btn-unpaid">Mark as Unpaid</button>
                 {% else %}
-            <button type="submit" class="status-paid">Mark as Paid</button>
+            <button type="submit" class="btn-paid">Mark as Paid</button>
         {% endif %}
             </form>
             </td>

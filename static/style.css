@@ -9,6 +9,21 @@ header {
 
 }
 
+.saved-bills-table td.status-cell.status-paid {
+    background-color: green !important;
+    color: white !important;
+    font-weight: bold !important;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.saved-bills-table td.status-cell.status-unpaid {
+    background-color: rgb(230, 16, 16) !important;
+    color: rgb(8, 8, 8) !important;
+    font-weight: bold !important;
+    text-align: center;
+    border-radius: 10px;
+}
 header h1 {
     font-size: 2.5rem;
 }
@@ -187,6 +202,10 @@ th {
     text-transform: uppercase;
 }
 
+.frequency {
+    text-transform: capitalize;
+}
+
 input {
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
 }
@@ -205,16 +224,33 @@ select {
 }
 
 .status-cell {
-    align-items: center;
+    text-align: center;
     vertical-align: middle;
+    font-weight: bold;
 }
 
+td.status-paid {
+    background-color: green;
+    color: white;
+    font-weight: bold;
+}
+
+td.status-unpaid {
+    background-color: rgb(230, 16, 16);
+    color: rgb(29, 27, 27);
+    font-weight: bold;
+}
 .status-cell form {
     display: inline-block;
     margin: 0;
 }
 
-.status-paid { 
-    background-color: green;
-    color: white;
+.saved-bills-table th, .saved-bills-table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.saved-bills-table td {
+    font-weight: bold;
+
 }
