@@ -53,6 +53,23 @@
 
 <h3 class = "total-bills">Unpaid Monthly Due: ${{ "%.2f" | format(total) }}</h3>
 
+<div class="filter-buttons">
+    <a href="{{ url_for('bills', status='all') }}"
+       class="filter-btn {% if active_filter == 'all' %}active-filter{% endif %}">
+        All
+    </a>
+
+    <a href="{{ url_for('bills', status='unpaid') }}"
+       class="filter-btn {% if active_filter == 'unpaid' %}active-filter{% endif %}">
+        Unpaid
+    </a>
+
+    <a href="{{ url_for('bills', status='paid') }}"
+       class="filter-btn {% if active_filter == 'paid' %}active-filter{% endif %}">
+        Paid
+    </a>
+</div>
+
 <table class="saved-bills-table"> 
     <colgroup>
         <col class="col-vendor;">
@@ -84,7 +101,7 @@
             <td>{{ bill["notes"] }}</td>
             <td class="manage-cell">
                 <a class = "btn-edit" href="{{ url_for('edit_bill', bill_id=bill['id']) }}">Edit</a>
-                
+
                 <form method="POST" action="{{ url_for('delete_bill', bill_id=bill['id']) }}">
                     <button type="submit">Delete</button>
                 </form>

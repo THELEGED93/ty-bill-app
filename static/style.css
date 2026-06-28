@@ -289,3 +289,11 @@ td.status-unpaid {
     max-width: 600px;
     margin: 2rem auto;
 }
+
+.filter-buttons {
+    display: flex;
+    font-weight: bold;
+    text-decoration: underline;
+    gap: 1.0rem;
+    padding-bottom: 1rem;
+}

@@ -11,37 +11,48 @@ def get_db_connection():
 @app.route("/bills", methods=["GET", "POST"])
 def bills():
     if request.method == "POST":
-        # Handle form submission
-        vendor = request.form["vendor"]
-        amount = request.form["amount"]
-        due_date = request.form["due_date"]
-        frequency = request.form["frequency"]
-        notes = request.form["notes"]
-
-        conn = get_db_connection()
-        conn.execute(
-            """
-            INSERT INTO bills (vendor, amount, due_date, frequency, notes)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            (vendor, amount, due_date, frequency, notes)
-        )
-        conn.commit()
-        conn.close()
-
+        # save new bill logic
         return redirect(url_for("bills"))
-    
+
     conn = get_db_connection()
 
-    bills = conn.execute("SELECT * FROM bills ORDER BY due_date ASC").fetchall()
-    
-    total = conn.execute( 
-        "SELECT COALESCE(SUM(CAST(amount AS REAL)), 0) AS total FROM bills WHERE paid = 0"
+    active_filter = request.args.get("status", "all")
+
+    if active_filter == "paid":
+        bills = conn.execute(
+            "SELECT * FROM bills WHERE paid = 1 ORDER BY due_date ASC"
+        ).fetchall()
+
+    elif active_filter == "unpaid":
+        bills = conn.execute(
+            """
+            SELECT * FROM bills
+            WHERE paid = 0 OR paid IS NULL
+            ORDER BY due_date ASC
+            """
+        ).fetchall()
+
+    else:
+        bills = conn.execute(
+            "SELECT * FROM bills ORDER BY due_date ASC"
+        ).fetchall()
+
+    total = conn.execute(
+        """
+        SELECT COALESCE(SUM(CAST(amount AS REAL)), 0) AS total
+        FROM bills
+        WHERE paid = 0
+        """
     ).fetchone()["total"]
+
     conn.close()
 
-    return render_template("bills.html", bills=bills, total=total)
-
+    return render_template(
+        "bills.html",
+        bills=bills,
+        total=total,
+        active_filter=active_filter
+    )
 @app.route("/delete/<int:bill_id>", methods=["POST"])
 def delete_bill(bill_id):
     conn = get_db_connection()
