@@ -18,6 +18,7 @@ def bills():
 
     active_filter = request.args.get("status", "all")
 
+    # Bills shown in the table, based on filter
     if active_filter == "paid":
         bills = conn.execute(
             "SELECT * FROM bills WHERE paid = 1 ORDER BY due_date ASC"
@@ -37,22 +38,49 @@ def bills():
             "SELECT * FROM bills ORDER BY due_date ASC"
         ).fetchall()
 
-    total = conn.execute(
-        """
-        SELECT COALESCE(SUM(CAST(amount AS REAL)), 0) AS total
-        FROM bills
-        WHERE paid = 0
-        """
-    ).fetchone()["total"]
+    # Use ALL bills for dashboard totals, not just filtered bills
+    all_bills = conn.execute(
+        "SELECT * FROM bills ORDER BY due_date ASC"
+    ).fetchall()
+
+    monthly_income = 3127.00  # temporary hardcoded income for now
+
+    total_due = 0
+    total_unpaid = 0
+
+    for bill in all_bills:
+        amount = float(bill["amount"])
+        frequency = bill["frequency"]
+        paid = bill["paid"]
+
+        if frequency == "weekly":
+            monthly_amount = amount * 4
+        elif frequency == "biweekly":
+            monthly_amount = amount * 2
+        elif frequency == "yearly" or frequency == "annual":
+            monthly_amount = amount / 12
+        else:
+            monthly_amount = amount
+
+        total_due += monthly_amount
+
+        if paid == 0 or paid is None:
+            total_unpaid += monthly_amount
+
+    left_after_bills = monthly_income - total_due
 
     conn.close()
 
     return render_template(
         "bills.html",
         bills=bills,
-        total=total,
+        monthly_income=monthly_income,
+        total_due=total_due,
+        total_unpaid=total_unpaid,
+        left_after_bills=left_after_bills,
         active_filter=active_filter
     )
+
 @app.route("/delete/<int:bill_id>", methods=["POST"])
 def delete_bill(bill_id):
     conn = get_db_connection()

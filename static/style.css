@@ -297,3 +297,28 @@ td.status-unpaid {
     gap: 1.0rem;
     padding-bottom: 1rem;
 }
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 20px 0 30px;
+}
+
+.dashboard-card {
+    background: #f4f4f4;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-card h3 {
+    margin: 0 0 10px;
+    font-size: 0.95rem;
+}
+
+.dashboard-card p {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+}

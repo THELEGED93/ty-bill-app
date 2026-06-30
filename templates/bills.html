@@ -51,7 +51,29 @@
 
 <h2 class="section-title">Monthly Bills</h2>
 
-<h3 class = "total-bills">Unpaid Monthly Due: ${{ "%.2f" | format(total) }}</h3>
+<section class="dashboard-cards">
+
+    <div class="dashboard-card">
+        <h3>Monthly Income</h3>
+        <p>${{ "%.2f" | format(monthly_income) }}</p>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>Total Monthly Due</h3>
+        <p>${{ "%.2f" | format(total_due) }}</p>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>Unpaid Bills</h3>
+        <p>${{ "%.2f" | format(total_unpaid) }}</p>
+    </div>
+
+    <div class="dashboard-card">
+        <h3>Left After Bills</h3>
+        <p>${{ "%.2f" | format(left_after_bills) }}</p>
+    </div>
+
+</section>
 
 <div class="filter-buttons">
     <a href="{{ url_for('bills', status='all') }}"
