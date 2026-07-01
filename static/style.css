@@ -296,29 +296,81 @@ td.status-unpaid {
     text-decoration: underline;
     gap: 1.0rem;
     padding-bottom: 1rem;
+    padding-top: 1rem;
 }
 
 .dashboard-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin: 20px 0 30px;
+    gap: 12px;
+    margin: stretch;
 }
 
+.need-to-pay {
+    background-color: #e6c8a6;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 1.7rem;
+    min-height: 95px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column; 
+    justify-content: flex-start;
+}
 .dashboard-card {
     background: #f4f4f4;
     border-radius: 12px;
-    padding: 18px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 1.7rem;
+    min-height: 95px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column; 
+    justify-content: flex-start;
 }
 
+.dashboard-card-income{
+    background: #f4f4f4;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border-left: 5px solid rgb(7, 150, 7);
+    font-size: 1.5rem;
+}
+
+.dashboard-card-left{
+    background: #f4f4f4;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+.positive-balance {
+    background-color: #b9ecc7;
+}
+
+.negative-balance {
+    background-color: #f0bebe;
+}
+
+.neutral-balance {
+    background-color: #f5f5f5;
+    
+}
 .dashboard-card h3 {
-    margin: 0 0 10px;
-    font-size: 0.95rem;
+    margin: 0 0 14px 0;
+    line-height: 1.2;
+    font-size: 1.7rem;
 }
 
 .dashboard-card p {
     margin: 0;
     font-size: 1.5rem;
     font-weight: bold;
+    line-height: 1.2;
 }

@@ -11,7 +11,27 @@ def get_db_connection():
 @app.route("/bills", methods=["GET", "POST"])
 def bills():
     if request.method == "POST":
-        # save new bill logic
+        vendor = request.form.get("vendor")
+        amount = request.form.get("amount")
+        due_date = request.form.get("due_date")
+        frequency = request.form.get("frequency")
+        notes = request.form.get("notes")
+
+        print("FORM DATA:", request.form)
+
+        conn = get_db_connection()
+
+        conn.execute(
+            """
+            INSERT INTO bills (vendor, amount, due_date, frequency, notes, paid)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (vendor, amount, due_date, frequency, notes, 0)
+        )
+
+        conn.commit()
+        conn.close()
+
         return redirect(url_for("bills"))
 
     conn = get_db_connection()
@@ -43,14 +63,14 @@ def bills():
         "SELECT * FROM bills ORDER BY due_date ASC"
     ).fetchall()
 
-    monthly_income = 3127.00  # temporary hardcoded income for now
+    monthly_income = 3127.00
 
     total_due = 0
     total_unpaid = 0
 
     for bill in all_bills:
         amount = float(bill["amount"])
-        frequency = bill["frequency"]
+        frequency = bill["frequency"].lower()
         paid = bill["paid"]
 
         if frequency == "weekly":
