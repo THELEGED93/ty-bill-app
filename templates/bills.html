@@ -69,7 +69,7 @@
     </div>
 
  <div class="dashboard-card-left {% if left_after_bills > 0 %}positive-balance{% elif left_after_bills < 0 %}negative-balance{% else %}neutral-balance{% endif %}">
-    <h3>Left After Bills</h3>
+    <h3 class = "card-title">Left After Bills</h3>
     <p>${{ "%.2f" | format(left_after_bills) }}</p>
 </div>
 
