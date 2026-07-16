@@ -128,12 +128,8 @@
                     <button type="submit">Delete</button>
                 </form>
             </td>
-            <td class="status-cell {% if bill['paid'] %}status-paid{% else %}status-unpaid{% endif %}">
-                {% if bill["paid"] %}
-                Paid
-                {% else %}
-                Unpaid
-                {% endif %}
+        <td class="status-cell">
+            {{ bill["display_status"] }}
         </td>
         <td class="paid-unpaid">
             <form method="POST" action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}">

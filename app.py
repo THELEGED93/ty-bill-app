@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for 
 import sqlite3
-
+from datetime import date,datetime
 app = Flask(__name__)
 
 def get_db_connection():
@@ -35,7 +35,7 @@ def bills():
         return redirect(url_for("bills"))
 
     conn = get_db_connection()
-
+    
     active_filter = request.args.get("status", "all")
 
     # Bills shown in the table, based on filter
@@ -89,11 +89,40 @@ def bills():
 
     left_after_bills = monthly_income - total_due
 
+    bill_list = []
+
+    for bill in bills:
+        bill_data = dict(bill)
+
+        if bill_data["paid"] == 1:
+            bill_data["display_status"] = "Paid"
+
+        else:
+            bill_due_date = datetime.strptime(
+                bill_data["due_date"],
+                "%Y-%m-%d"
+            ).date()
+
+            days_until_due = (
+                bill_due_date - date.today()
+            ).days
+
+            if days_until_due < 0:
+                bill_data["display_status"] = "Overdue"
+
+            elif days_until_due <= 7:
+                bill_data["display_status"] = "Due Soon"
+
+            else:
+                bill_data["display_status"] = "Unpaid"
+
+        bill_list.append(bill_data)
+
     conn.close()
 
     return render_template(
         "bills.html",
-        bills=bills,
+        bills=bill_list,
         monthly_income=monthly_income,
         total_due=total_due,
         total_unpaid=total_unpaid,
