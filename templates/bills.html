@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Bills</h1>
-
+<div class="page-watermark" aria-hidden="true"></div>
 <div class="top-section">
 
     <div class="form-area">
@@ -43,10 +42,21 @@
 
     </div>
 
-    <img class="bill-logo-side" 
-            src="{{ url_for('static', filename='form_logo.jpeg') }}" 
-            alt="Ty Bill App logo">
+    <div
+        class="bill-info-panel"
+        style="--panel-image: url('{{ url_for('static', filename='form_logo.jpeg') }}');"
+    >
+        <div class="bill-info-content">
+            <h2 class = "bill-info-title">Stay Ahead of Your Bills</h2>
 
+            <p class = "bill-app-description">
+                Track recurring expenses, income sources,<br>
+                due dates, and payment status in one place.<br>
+                <i>- Stay Informed and in control of your finances with ease.</i>
+            </p>
+        </div>
+    </div>
+</div>
 </div>
 
 <h2 class="section-title">Monthly Bills</h2>
@@ -56,6 +66,14 @@
     <div class="dashboard-card-income">
         <h3>Monthly Income</h3>
         <p>${{ "%.2f" | format(monthly_income) }}</p>
+
+        <button
+            type="button"
+            class="btn-income"
+            onclick="openIncomeModal()"
+    >
+        Manage Income
+        </button>
     </div>
 
     <div class="dashboard-card">
@@ -75,6 +93,143 @@
 
 </section>
 
+<div id="incomeModal" class="modal">
+    <div class="modal-content">
+
+        <button
+            type="button"
+            class="modal-close"
+            onclick="closeIncomeModal()"
+        >
+            &times;
+        </button>
+
+        <h2 id="incomeModalTitle">Add Income Source</h2>
+
+        <form
+            id="incomeForm"
+            method="POST"
+            action="{{ url_for('add_income') }}"
+        >
+
+            <div class="form-group">
+                <label for="income_source">Income Source</label>
+                <input
+                    type="text"
+                    id="income_source"
+                    name="source"
+                    placeholder="Primary Job"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="income_amount">Amount</label>
+                <input
+                    type="number"
+                    id="income_amount"
+                    name="amount"
+                    min="0"
+                    step="0.01"
+                    placeholder="3200.00"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="income_frequency">Frequency</label>
+                <select
+                    id="income_frequency"
+                    name="frequency"
+                    required
+                >
+                    <option value="weekly">Weekly</option>
+                    <option value="biweekly">Biweekly</option>
+                    <option value="twice-monthly">Twice Monthly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="one-time">One-Time / Commission </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="income_date">Date Received</label>
+                <input
+                    type="date"
+                    id="income_date"
+                    name="received_date"
+                >
+            </div>
+
+            <div class="modal-actions">
+                <button
+                    type="button"
+                    class="btn-modal-cancel"
+                    onclick="closeIncomeModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    id="incomeSubmitButton"
+                    type="submit"
+                    class="btn-modal-save"
+                >
+                    Save Income
+                </button>
+            </div>
+
+        </form>
+            <div class="saved-income-section">
+                <h3>Saved Income Sources</h3>
+
+                {% if incomes %}
+                    {% for income in incomes %}
+                        <div class="income-item">
+
+                            <div class="income-item-details">
+                                <strong>{{ income["source"] }}</strong>
+
+                                <span>
+                                    ${{ "%.2f" | format(income["amount"]) }}
+                                    — {{ income["frequency"] | replace("-", " ") | title }}
+                                </span>
+                            </div>
+
+                            <div class="income-item-actions">
+                                <button
+                                    type="button"
+                                    class="btn-edit-income"
+                                    onclick='openEditIncomeModal(
+                                        {{ income["id"] }},
+                                        {{ income["source"] | tojson }},
+                                        {{ income["amount"] }},
+                                        {{ income["frequency"] | tojson }}
+                                    )'
+                                >
+                                    Edit
+                                </button>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('delete_income', income_id=income['id']) }}"
+                                    onsubmit="return confirm('Delete this income source?');"
+                                >
+                                    <button type="submit" class="btn-delete-income">
+                                         Delete
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No saved income sources yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 <div class="filter-buttons">
     <a href="{{ url_for('bills', status='all') }}"
        class="filter-btn {% if active_filter == 'all' %}active-filter{% endif %}">
@@ -129,8 +284,26 @@
                 </form>
             </td>
         <td class="status-cell">
-            {{ bill["display_status"] }}
+            <span class="due-status
+                {% if bill['paid'] %}
+                    status-paid
+                {% elif bill['display_status'] == 'Overdue' %}
+                    status-overdue
+                {% elif bill['display_status'] == 'Due Today' %}
+                    status-today
+                {% elif bill['display_status'] == 'Due Tomorrow' %}
+                    status-tomorrow
+                {% elif 'Due in' in bill['display_status'] %}
+                    status-upcoming
+                {% else %}
+                    status-future
+                {% endif %}
+            ">
+        
+                {{ bill["display_status"] }}
+            </span>
         </td>
+
         <td class="paid-unpaid">
             <form method="POST" action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}">
                 {% if bill["paid"] %}
@@ -144,5 +317,52 @@
         {% endfor %}
     </tbody>
 </table>
+<script>
+    function openIncomeModal() {
+        document
+            .getElementById("incomeModal")
+            .classList.add("show");
+    }
+
+    function closeIncomeModal() {
+        document
+            .getElementById("incomeModal")
+            .classList.remove("show");
+    }
+
+    function openEditIncomeModal(id, source, amount, frequency) {
+        const form = document.getElementById("incomeForm");
+
+        form.action = "/income/edit/" + id;
+
+        document.getElementById("income_source").value = source;
+        document.getElementById("income_amount").value = amount;
+        document.getElementById("income_frequency").value = frequency;
+
+        document.getElementById("incomeModalTitle").textContent =
+            "Edit Income Source";
+
+        document.getElementById("incomeSubmitButton").textContent =
+            "Update Income";
+
+        document.getElementById("incomeModal").classList.add("show");
+}
+
+    window.addEventListener("click", function(event) {
+        const modal = document.getElementById("incomeModal");
+
+        if (event.target === modal) {
+            closeIncomeModal();
+        }
+    });
+
+    window.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            closeIncomeModal();
+        }
+    });
+</script>
+
+
 
 {% endblock %}

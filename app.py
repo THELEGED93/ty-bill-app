@@ -63,7 +63,34 @@ def bills():
         "SELECT * FROM bills ORDER BY due_date ASC"
     ).fetchall()
 
-    monthly_income = 3127.00
+    income_rows = conn.execute(
+        """
+        SELECT id, source, amount, frequency
+        FROM income
+        ORDER BY source
+        """
+    ).fetchall()
+
+    monthly_income = 0
+
+    for income in income_rows:
+        amount = float(income["amount"])
+        frequency = income["frequency"].lower()
+
+        if frequency == "weekly":
+            monthly_income += amount * 52 / 12
+
+        elif frequency == "biweekly":
+            monthly_income += amount * 26 / 12
+
+        elif frequency == "twice-monthly":
+            monthly_income += amount * 2
+
+        elif frequency == "yearly" or frequency == "annual":
+            monthly_income += amount / 12
+
+        else:
+            monthly_income += amount
 
     total_due = 0
     total_unpaid = 0
@@ -118,11 +145,12 @@ def bills():
 
         bill_list.append(bill_data)
 
-    conn.close()
+        conn.close()
 
     return render_template(
         "bills.html",
         bills=bill_list,
+        incomes=income_rows,
         monthly_income=monthly_income,
         total_due=total_due,
         total_unpaid=total_unpaid,
@@ -198,5 +226,63 @@ def edit_bill(bill_id):
     conn.close()
 
     return render_template("edit_bill.html", bill=bill)
+
+@app.route("/income/add", methods=["POST"])
+def add_income():
+    source = request.form["source"]
+    amount = float(request.form["amount"])
+    frequency = request.form["frequency"]
+
+    conn = sqlite3.connect("bills.db")
+
+    conn.execute(
+        """
+        INSERT INTO income (source, amount, frequency)
+        VALUES (?, ?, ?)
+        """,
+        (source, amount, frequency)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("bills"))
+
+@app.route("/income/edit/<int:income_id>", methods=["POST"])
+def edit_income(income_id):
+    source = request.form["source"]
+    amount = float(request.form["amount"])
+    frequency = request.form["frequency"]
+
+    conn = get_db_connection()
+
+    conn.execute(
+        """
+        UPDATE income
+        SET source = ?, amount = ?, frequency = ?
+        WHERE id = ?
+        """,
+        (source, amount, frequency, income_id)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("bills"))
+
+@app.route("/income/delete/<int:income_id>", methods=["POST"])
+def delete_income(income_id):
+    conn = get_db_connection()
+
+    conn.execute(
+        "DELETE FROM income WHERE id = ?",
+        (income_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("bills"))
+
 if __name__ == "__main__":
     app.run(debug=True)

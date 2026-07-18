@@ -130,7 +130,15 @@ button {
 }
 
 .form-area {
-    width: 0 0 380px;
+    width: 100%;
+    max-width: 520px;
+    padding: 24px;
+    background-color: white;
+    border: 1px solid #d9dee7;
+    border-left: 4px solide #e8873a;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
 }
 
 .bill-logo-side {
@@ -207,6 +215,14 @@ th {
 }
 
 input {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+form-group textarea,
+form-group input, 
+form-group select {
+    width: 100%;
+    box-sizing: border-box;
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -382,4 +398,239 @@ td.status-unpaid {
 
 .card-title {
     font-size: 2.5rem;
+}
+
+/* Due-date status badge */
+.due-status {
+    display: inline-block;
+    min-width: 105px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Bill has already been paid */
+.status-paid {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+/* Bill is past due */
+.status-overdue {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+/* Bill is due today */
+.status-today {
+    background-color: #ffedd5;
+    color: #9a3412;
+    border: 1px solid #fdba74;
+}
+
+/* Bill is due tomorrow */
+.status-tomorrow {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+/* Bill is due in several days */
+.status-upcoming {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+/* Bill is farther away or has another status */
+.status-future {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.status-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Income modal background */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* This class is added by JavaScript */
+.modal.show {
+    display: flex;
+}
+
+/* Popup box */
+.modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    overflow: hidden;
+    max-height: 85vh;
+    background-color: white;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 22px;
+}
+
+/* Close X */
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* Modal form fields */
+.modal-content .form-group {
+    margin-bottom: 16px;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Bottom buttons */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+}
+/* Scrollable saved income list */
+.saved-income-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    padding-right: 8px;
+    border-top: 1px solid #ddd;
+    max-height: 190px;
+    overflow-y: auto;
+}
+
+.saved-income-section h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.income-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.income-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.income-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.income-item-actions form {
+    margin: 0;
+}
+
+.income-item-actions button {
+    margin: 0;
+}
+
+.form-area form {
+    width: 100%;
+}
+
+.form-area input,
+.form-area select,
+.form-area textarea {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.form-area textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.bill-app-description {
+   font-size: 2rem;
+   line-height: 1.5;
+   color: #4b5563;
+}
+
+.bill-info-content {
+    padding-right: 400px;
+    padding-top: 100px;
+    gap: 12px;
+    margin-bottom: 16px;
+    width: 1000px;
+}
+
+.bill-info-title {
+    padding-bottom: 25px;
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+    font: impact, sans-serif;
+}
+
+.page-watermark {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 500px;
+    height: 500px;
+
+    background-image: url("/static/form_logo.jpeg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: 0;
 }
