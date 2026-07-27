@@ -1,12 +1,20 @@
 header {
     background-color: #c27434;
     color: white;
+    width: 100%;
+    max-width: 900px;
     padding: 1.5rem;
-    margin: 1rem;
+    margin: 1rem auto;
     border-radius: 15px;
     text-align: center;
     border: 7px solid #1b1919;
 
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
 .saved-bills-table td.status-cell.status-paid {
@@ -31,7 +39,17 @@ header h1 {
 body {
     background-color: #0964be;
     margin: 0;
+    overflow-x: hidden;
     font-family: Arial, sans-serif;
+}
+
+main,
+.container,
+.page-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 footer { 
@@ -40,12 +58,14 @@ footer {
 
 main { 
     background-color: #f8f4ef;
-    max-width: 95%;
+    width: calc(100% - 2rem);
+    max-width: 1200px;
     padding: 1.5rem;
     margin: 1rem auto;
     border-radius: 15px;
     position: relative;
     min-height: 500px;
+    overflow-x: hidden;
 }
 .bill-logo-side { 
     display: block;
@@ -98,19 +118,13 @@ h2 {
 }
 
 .form-group input,
-.form-group select {
-    width: 350px;
-    padding: 0.5rem;
-    box-sizing: border-box;
-}
-
+.form-group select,
 .form-group textarea {
-    width: 700px;
-    height: 180px;
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid #ccc;
     padding: 0.5rem;
     box-sizing: border-box;
-    resize: vertical;
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
 }
 
 button {
@@ -135,7 +149,7 @@ button {
     padding: 24px;
     background-color: white;
     border: 1px solid #d9dee7;
-    border-left: 4px solide #e8873a;
+    border-left: 4px solid #e8873a;
     border-radius: 12px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     box-sizing: border-box;
@@ -163,27 +177,40 @@ th {
 
 .saved-bills-table {
     width: 100%;
+    min-width: 100%;
     border-collapse: fixed;
-    border-collapse: collapse ;
 }
+
 .col-vendor {
-    width: 20%;
+    width: 14%;
 }
 
 .col-amount {
-    width: 15%;
+    width: 11%;
 }
 
 .col-due-date {
-    width: 20%;
+    width: 12%;
 }
 
 .col-frequency {
-    width: 15%;
+    width: 13%;
 }
 
 .col-notes {
-    width: 30%;
+    width: 16%;
+}
+
+.col-manage {
+    width: 13%;
+}
+
+.col-status {
+    width: 11%;
+}
+
+.col-action {
+    width: 10%;
 }
 
 .saved-bills-table th {
@@ -325,6 +352,11 @@ td.status-unpaid {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 12px;
     margin: stretch;
+}
+
+.dashboard-cards,
+.table-wrapper {
+    width: 100%;
 }
 
 .need-to-pay {
@@ -602,11 +634,10 @@ td.status-unpaid {
 }
 
 .bill-info-content {
-    padding-right: 400px;
-    padding-top: 100px;
+    padding: 100px 40px 40px 40px;
     gap: 12px;
     margin-bottom: 16px;
-    width: 1000px;
+    width: 100%;
 }
 
 .bill-info-title {
@@ -616,21 +647,92 @@ td.status-unpaid {
     font: impact, sans-serif;
 }
 
-.page-watermark {
-    position: absolute;
-    top: 52%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.bill-info-panel {
+    width: 100%;
+    min-height: 500px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
 
-    width: 500px;
-    height: 500px;
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0.82),
+            rgba(255, 255, 255, 0.82)
+        ),
+        var(--panel-image);
 
-    background-image: url("/static/form_logo.jpeg");
-    background-repeat: no-repeat;
+    background-size: cover;
     background-position: center;
-    background-size: contain;
-
-    opacity: 0.07;
-    pointer-events: none;
-    z-index: 0;
+    background-repeat: no-repeat;
 }
+
+@media (max-width: 768px) {
+
+    main {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 4px;
+        border-radius: 0;
+    }
+
+    .top-section {
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .form-area,
+    .bill-info-panel {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .bill-info-content {
+        width: 100%;
+        padding: 30px 20px;
+    }
+
+    .bill-info-title {
+        font-size: 2rem;
+    }
+
+    .bill-app-description {
+        font-size: 1.1rem;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .saved-bills-table {
+        width: 900px;
+        min-width: 900px;
+    }
+
+    .page-watermark {
+        width: 220px;
+        height: 220px;
+    }
+}
+
+.table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    display: block;
+}
+
+.saved-bills-table {
+    width: 900px;
+    border-collapse: collapse;
+}
+

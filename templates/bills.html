@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="page-watermark" aria-hidden="true"></div>
+
 <div class="top-section">
 
     <div class="form-area">
@@ -9,35 +11,67 @@
         <h2 class="section-title">Add a New Bill</h2>
 
         <form method="POST" action="/bills">
+
             <div class="form-group">
                 <label for="vendor">Vendor</label>
-                <input type="text" id="vendor" name="vendor" required>
+                <input
+                    type="text"
+                    id="vendor"
+                    name="vendor"
+                    required
+                >
             </div>
 
-        <div class="form-group">
-            <label for="amount">Amount</label>
-            <input type="number" id="amount" name="amount" step="0.01" required>
-        </div>
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    step="0.01"
+                    required
+                >
+            </div>
 
-        <div class="form-group">
-            <label for="due_date">Due Date</label>
-            <input type="date" id="due_date" name="due_date" required>
-        </div>
-        <div class="form-group">
-            <label for="frequency">Frequency</label>
-            <select id="frequency" name="frequency" required>
-                <option value="">Select one</option>
-                <option value="monthly">Monthly</option>
-                <option value="weekly">Weekly</option>
-                <option value="yearly">Yearly</option>
-                <option value="one-time">One-time</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="notes">Notes</label>
-            <textarea id="notes" name="notes"></textarea>
-        </div>
-    <button type="submit">Save Bill</button>
+            <div class="form-group">
+                <label for="due_date">Due Date</label>
+                <input
+                    type="date"
+                    id="due_date"
+                    name="due_date"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="frequency">Frequency</label>
+
+                <select
+                    id="frequency"
+                    name="frequency"
+                    required
+                >
+                    <option value="">Select one</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="one-time">One-time</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes</label>
+
+                <textarea
+                    id="notes"
+                    name="notes"
+                ></textarea>
+            </div>
+
+            <button type="submit">
+                Save Bill
+            </button>
+
         </form>
 
     </div>
@@ -47,53 +81,104 @@
         style="--panel-image: url('{{ url_for('static', filename='form_logo.jpeg') }}');"
     >
         <div class="bill-info-content">
-            <h2 class = "bill-info-title">Stay Ahead of Your Bills</h2>
 
-            <p class = "bill-app-description">
+            <h2 class="bill-info-title">
+                Stay Ahead of Your Bills
+            </h2>
+
+            <p class="bill-app-description">
                 Track recurring expenses, income sources,<br>
                 due dates, and payment status in one place.<br>
-                <i>- Stay Informed and in control of your finances with ease.</i>
+
+                <i>
+                    Stay informed and in control of your finances with ease.
+                </i>
             </p>
+
         </div>
     </div>
+
 </div>
-</div>
+
 
 <h2 class="section-title">Monthly Bills</h2>
 
 <section class="dashboard-cards">
 
     <div class="dashboard-card-income">
+
         <h3>Monthly Income</h3>
-        <p>${{ "%.2f" | format(monthly_income) }}</p>
+
+        <p>
+            ${{ "%.2f" | format(monthly_income) }}
+        </p>
 
         <button
             type="button"
             class="btn-income"
             onclick="openIncomeModal()"
-    >
-        Manage Income
+        >
+            Manage Income
         </button>
+
     </div>
+
 
     <div class="dashboard-card">
+
         <h3>Total Monthly Due</h3>
-        <p>${{ "%.2f" | format(total_due) }}</p>
+
+        <p>
+            ${{ "%.2f" | format(total_due) }}
+        </p>
+
     </div>
 
-    <div class="dashboard-card {% if total_unpaid > 0 %}need-to-pay{% else %}all-paid{% endif %}">
+
+    <div
+        class="dashboard-card
+        {% if total_unpaid > 0 %}
+            need-to-pay
+        {% else %}
+            all-paid
+        {% endif %}"
+    >
+
         <h3>Unpaid Bills</h3>
-        <p>${{ "%.2f" | format(total_unpaid) }}</p>
+
+        <p>
+            ${{ "%.2f" | format(total_unpaid) }}
+        </p>
+
     </div>
 
- <div class="dashboard-card-left {% if left_after_bills > 0 %}positive-balance{% elif left_after_bills < 0 %}negative-balance{% else %}neutral-balance{% endif %}">
-    <h3 class = "card-title">Left After Bills</h3>
-    <p>${{ "%.2f" | format(left_after_bills) }}</p>
-</div>
+
+    <div
+        class="dashboard-card-left
+        {% if left_after_bills > 0 %}
+            positive-balance
+        {% elif left_after_bills < 0 %}
+            negative-balance
+        {% else %}
+            neutral-balance
+        {% endif %}"
+    >
+
+        <h3 class="card-title">
+            Left After Bills
+        </h3>
+
+        <p>
+            ${{ "%.2f" | format(left_after_bills) }}
+        </p>
+
+    </div>
 
 </section>
 
+
 <div id="incomeModal" class="modal">
+
     <div class="modal-content">
 
         <button
@@ -104,7 +189,9 @@
             &times;
         </button>
 
-        <h2 id="incomeModalTitle">Add Income Source</h2>
+        <h2 id="incomeModalTitle">
+            Add Income Source
+        </h2>
 
         <form
             id="incomeForm"
@@ -113,7 +200,11 @@
         >
 
             <div class="form-group">
-                <label for="income_source">Income Source</label>
+
+                <label for="income_source">
+                    Income Source
+                </label>
+
                 <input
                     type="text"
                     id="income_source"
@@ -121,10 +212,16 @@
                     placeholder="Primary Job"
                     required
                 >
+
             </div>
 
+
             <div class="form-group">
-                <label for="income_amount">Amount</label>
+
+                <label for="income_amount">
+                    Amount
+                </label>
+
                 <input
                     type="number"
                     id="income_amount"
@@ -134,10 +231,16 @@
                     placeholder="3200.00"
                     required
                 >
+
             </div>
 
+
             <div class="form-group">
-                <label for="income_frequency">Frequency</label>
+
+                <label for="income_frequency">
+                    Frequency
+                </label>
+
                 <select
                     id="income_frequency"
                     name="frequency"
@@ -148,20 +251,29 @@
                     <option value="twice-monthly">Twice Monthly</option>
                     <option value="monthly" selected>Monthly</option>
                     <option value="yearly">Yearly</option>
-                    <option value="one-time">One-Time / Commission </option>
+                    <option value="one-time">One-Time / Commission</option>
                 </select>
+
             </div>
 
+
             <div class="form-group">
-                <label for="income_date">Date Received</label>
+
+                <label for="income_date">
+                    Date Received
+                </label>
+
                 <input
                     type="date"
                     id="income_date"
                     name="received_date"
                 >
+
             </div>
 
+
             <div class="modal-actions">
+
                 <button
                     type="button"
                     class="btn-modal-cancel"
@@ -177,157 +289,287 @@
                 >
                     Save Income
                 </button>
+
             </div>
 
         </form>
-            <div class="saved-income-section">
-                <h3>Saved Income Sources</h3>
 
-                {% if incomes %}
-                    {% for income in incomes %}
-                        <div class="income-item">
 
-                            <div class="income-item-details">
-                                <strong>{{ income["source"] }}</strong>
+        <div class="saved-income-section">
 
-                                <span>
-                                    ${{ "%.2f" | format(income["amount"]) }}
-                                    — {{ income["frequency"] | replace("-", " ") | title }}
-                                </span>
-                            </div>
+            <h3>Saved Income Sources</h3>
 
-                            <div class="income-item-actions">
-                                <button
-                                    type="button"
-                                    class="btn-edit-income"
-                                    onclick='openEditIncomeModal(
-                                        {{ income["id"] }},
-                                        {{ income["source"] | tojson }},
-                                        {{ income["amount"] }},
-                                        {{ income["frequency"] | tojson }}
-                                    )'
-                                >
-                                    Edit
-                                </button>
+            {% if incomes %}
 
-                                <form
-                                    method="POST"
-                                    action="{{ url_for('delete_income', income_id=income['id']) }}"
-                                    onsubmit="return confirm('Delete this income source?');"
-                                >
-                                    <button type="submit" class="btn-delete-income">
-                                         Delete
-                                    </button>
-                                </form>
-                            </div>
+                {% for income in incomes %}
+
+                    <div class="income-item">
+
+                        <div class="income-item-details">
+
+                            <strong>
+                                {{ income["source"] }}
+                            </strong>
+
+                            <span>
+                                ${{ "%.2f" | format(income["amount"]) }}
+                                —
+                                {{ income["frequency"] | replace("-", " ") | title }}
+                            </span>
 
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <p>No saved income sources yet.</p>
-                {% endif %}
-            </div>
+
+
+                        <div class="income-item-actions">
+
+                            <button
+                                type="button"
+                                class="btn-edit-income"
+                                data-id="{{ income['id'] }}"
+                                data-source="{{ income['source'] }}"
+                                data-amount="{{ income['amount'] }}"
+                                data-frequency="{{ income['frequency'] }}"
+                                onclick="openEditIncomeModalFromButton(this)"
+                            >
+                                Edit
+                            </button>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('delete_income', income_id=income['id']) }}"
+                                onsubmit="return confirm('Delete this income source?');"
+                            >
+                                <button
+                                    type="submit"
+                                    class="btn-delete-income"
+                                >
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p>No saved income sources yet.</p>
+
+            {% endif %}
+
         </div>
+
     </div>
+
 </div>
+
+
 <div class="filter-buttons">
-    <a href="{{ url_for('bills', status='all') }}"
-       class="filter-btn {% if active_filter == 'all' %}active-filter{% endif %}">
+
+    <a
+        href="{{ url_for('bills', status='all') }}"
+        class="filter-btn
+        {% if active_filter == 'all' %}
+            active-filter
+        {% endif %}"
+    >
         All
     </a>
 
-    <a href="{{ url_for('bills', status='unpaid') }}"
-       class="filter-btn {% if active_filter == 'unpaid' %}active-filter{% endif %}">
+    <a
+        href="{{ url_for('bills', status='unpaid') }}"
+        class="filter-btn
+        {% if active_filter == 'unpaid' %}
+            active-filter
+        {% endif %}"
+    >
         Unpaid
     </a>
 
-    <a href="{{ url_for('bills', status='paid') }}"
-       class="filter-btn {% if active_filter == 'paid' %}active-filter{% endif %}">
+    <a
+        href="{{ url_for('bills', status='paid') }}"
+        class="filter-btn
+        {% if active_filter == 'paid' %}
+            active-filter
+        {% endif %}"
+    >
         Paid
     </a>
+
 </div>
 
-<table class="saved-bills-table"> 
-    <colgroup>
-        <col class="col-vendor;">
-        <col class="col-amount;">
-        <col class="col-due-date;">
-        <col class="col-frequency;">
-        <col class="col-notes;">
-    </colgroup>
 
-    <thead>
-        <tr>
-            <th>Vendor</th>
-            <th>Amount</th>
-            <th>Due Date</th>
-            <th>Frequency</th>
-            <th>Notes</th>
-            <th>Manage</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for bill in bills %}
-        <tr>
-            <td class="vendor-name">{{ bill["vendor"] }}</td>
-            <td>${{ "%.2f" | format(bill["amount"] | float) }}</td>
-            <td>{{ bill["due_date"] }}</td>
-            <td class="frequency">{{ bill["frequency"] }}</td>
-            <td>{{ bill["notes"] }}</td>
-            <td class="manage-cell">
-                <a class = "btn-edit" href="{{ url_for('edit_bill', bill_id=bill['id']) }}">Edit</a>
+<div class="table-wrapper">
 
-                <form method="POST" action="{{ url_for('delete_bill', bill_id=bill['id']) }}">
-                    <button type="submit">Delete</button>
-                </form>
-            </td>
-        <td class="status-cell">
-            <span class="due-status
-                {% if bill['paid'] %}
-                    status-paid
-                {% elif bill['display_status'] == 'Overdue' %}
-                    status-overdue
-                {% elif bill['display_status'] == 'Due Today' %}
-                    status-today
-                {% elif bill['display_status'] == 'Due Tomorrow' %}
-                    status-tomorrow
-                {% elif 'Due in' in bill['display_status'] %}
-                    status-upcoming
-                {% else %}
-                    status-future
-                {% endif %}
-            ">
-        
-                {{ bill["display_status"] }}
-            </span>
-        </td>
+    <table class="saved-bills-table">
 
-        <td class="paid-unpaid">
-            <form method="POST" action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}">
-                {% if bill["paid"] %}
-            <button type="submit" class="btn-unpaid">Mark as Unpaid</button>
-                {% else %}
-            <button type="submit" class="btn-paid">Mark as Paid</button>
-        {% endif %}
-            </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        <colgroup>
+            <col class="col-vendor">
+            <col class="col-amount">
+            <col class="col-due-date">
+            <col class="col-frequency">
+            <col class="col-notes">
+            <col class="col-manage">
+            <col class="col-status">
+            <col class="col-action">
+        </colgroup>
+
+        <thead>
+
+            <tr>
+                <th>Vendor</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Frequency</th>
+                <th>Notes</th>
+                <th>Manage</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for bill in bills %}
+
+                <tr>
+
+                    <td class="vendor-name">
+                        {{ bill["vendor"] }}
+                    </td>
+
+                    <td>
+                        ${{ "%.2f" | format(bill["amount"] | float) }}
+                    </td>
+
+                    <td>
+                        {{ bill["due_date"] }}
+                    </td>
+
+                    <td class="frequency">
+                        {{ bill["frequency"] }}
+                    </td>
+
+                    <td>
+                        {{ bill["notes"] }}
+                    </td>
+
+
+                    <td class="manage-cell">
+
+                        <a
+                            class="btn-edit"
+                            href="{{ url_for('edit_bill', bill_id=bill['id']) }}"
+                        >
+                            Edit
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('delete_bill', bill_id=bill['id']) }}"
+                            onsubmit="return confirm('Delete this bill?');"
+                        >
+                            <button
+                                type="submit"
+                                class="btn-delete"
+                            >
+                                Delete
+                            </button>
+                        </form>
+
+                    </td>
+
+
+                    <td class="status-cell">
+
+                        <span
+                            class="due-status
+                            {% if bill['paid'] %}
+                                status-paid
+                            {% elif bill['display_status'] == 'Overdue' %}
+                                status-overdue
+                            {% elif bill['display_status'] == 'Due Today' %}
+                                status-today
+                            {% elif bill['display_status'] == 'Due Tomorrow' %}
+                                status-tomorrow
+                            {% elif 'Due in' in bill['display_status'] %}
+                                status-upcoming
+                            {% else %}
+                                status-future
+                            {% endif %}"
+                        >
+                            {{ bill["display_status"] }}
+                        </span>
+
+                    </td>
+
+
+                    <td class="paid-unpaid">
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}"
+                        >
+
+                            {% if bill["paid"] %}
+
+                                <button
+                                    type="submit"
+                                    class="btn-unpaid"
+                                >
+                                    Mark as Unpaid
+                                </button>
+
+                            {% else %}
+
+                                <button
+                                    type="submit"
+                                    class="btn-paid"
+                                >
+                                    Mark as Paid
+                                </button>
+
+                            {% endif %}
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
 <script>
+
     function openIncomeModal() {
         document
             .getElementById("incomeModal")
             .classList.add("show");
     }
 
+
     function closeIncomeModal() {
         document
             .getElementById("incomeModal")
             .classList.remove("show");
+    }
+    function openEditIncomeModalFromButton(button) {
+        const id = button.dataset.id;
+        const source = button.dataset.source;
+        const amount = button.dataset.amount;
+        const frequency = button.dataset.frequency;
+
+        openEditIncomeModal(id, source, amount, frequency);
     }
 
     function openEditIncomeModal(id, source, amount, frequency) {
@@ -345,8 +587,11 @@
         document.getElementById("incomeSubmitButton").textContent =
             "Update Income";
 
-        document.getElementById("incomeModal").classList.add("show");
-}
+        document
+            .getElementById("incomeModal")
+            .classList.add("show");
+    }
+
 
     window.addEventListener("click", function(event) {
         const modal = document.getElementById("incomeModal");
@@ -356,13 +601,13 @@
         }
     });
 
+
     window.addEventListener("keydown", function(event) {
         if (event.key === "Escape") {
             closeIncomeModal();
         }
     });
+
 </script>
-
-
 
 {% endblock %}
