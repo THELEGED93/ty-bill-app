@@ -23,6 +23,33 @@
             </div>
 
             <div class="form-group">
+                <label for="category">Category</label>
+
+                <select
+                    id="category"
+                    name="category"
+                    required
+                >
+                    <option value="">Select one</option>
+                    <option value="carloan">Car Loan</option>
+                    <option value="studentloan">Student Loan</option>
+                    <option value="loan">Loan</option>
+                    <option value="creditcard">Credit Card</option>
+                    <option value="mortgage">Mortgage</option>
+                    <option value="utilities">Utilities</option>
+                    <option value="groceries">Groceries</option>
+                    <option value="insurance">Insurance</option>
+                    <option value="phone">Phone</option>
+                    <option value="internet">Internet</option>
+                    <option value="transportation">Transportation</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="other">Other</option>
+    
+                </select>
+            </div>
+
+
+            <div class="form-group">
                 <label for="amount">Amount</label>
                 <input
                     type="number"
@@ -432,14 +459,33 @@
         </thead>
 
         <tbody>
+            {% set category_images = {
+                "carloan": "car_loan.png",
+                "studentloan": "student_loan.png",
+                "loan": "loan.png",
+                "creditcard": "credit_card.png",
+                "mortgage": "mortgage_rent.png",
+                "utilities": "utilities.png",
+                "groceries": "groceries.png",
+                "insurance": "insurance.png",
+                "phone": "phone.png",
+                "internet": "internet.png",
+                "entertainment": "entertainment.png",
+                "other": "other.png"
+            } %}
 
             {% for bill in bills %}
 
                 <tr>
 
                     <td class="vendor-name">
-                        {{ bill["vendor"] }}
-                    </td>
+                        <div>{{ bill["vendor"] }}</div>
+                        <img
+                        class="bill-category-icon"
+                        src="{{ url_for('static', filename=category_images.get(bill['category'], 'other.png')) }}"
+                        alt="{{ bill['category'] }}"
+                         >
+                        </td>
 
                     <td>
                         ${{ "%.2f" | format(bill["amount"] | float) }}

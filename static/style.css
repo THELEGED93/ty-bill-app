@@ -736,3 +736,18 @@ td.status-unpaid {
     border-collapse: collapse;
 }
 
+.bill-category {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+    font-size: 0.85rem;
+    font-weight: normal;
+}
+
+.bill-category-icon {
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  margin: 6px auto 0;
+}

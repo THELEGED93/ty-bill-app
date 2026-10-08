@@ -10,12 +10,15 @@ def get_db_connection():
 
 @app.route("/bills", methods=["GET", "POST"])
 def bills():
+    print("BILLS ROUTE:", app.root_path)
+    print("CATEGORY IN TEMPLATE:", 'id="category"' in app.jinja_loader.get_source(app.jinja_env, "bills.html")[0])
     if request.method == "POST":
         vendor = request.form.get("vendor")
         amount = request.form.get("amount")
         due_date = request.form.get("due_date")
         frequency = request.form.get("frequency")
         notes = request.form.get("notes")
+        category = request.form.get("category")
 
         print("FORM DATA:", request.form)
 
@@ -23,10 +26,10 @@ def bills():
 
         conn.execute(
             """
-            INSERT INTO bills (vendor, amount, due_date, frequency, notes, paid)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO bills (vendor, amount, due_date, frequency, notes, category, paid)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            (vendor, amount, due_date, frequency, notes, 0)
+            (vendor, amount, due_date, frequency, notes, category, 0)
         )
 
         conn.commit()
