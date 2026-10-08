@@ -206,14 +206,15 @@ def edit_bill(bill_id):
         due_date = request.form["due_date"]
         frequency = request.form["frequency"]
         notes = request.form["notes"]
+        category = request.form["category"]
 
         conn.execute(
             """
             UPDATE bills
-            SET vendor = ?, amount = ?, due_date = ?, frequency = ?, notes = ?
+            SET vendor = ?, amount = ?, due_date = ?, frequency = ?, notes = ?, category = ?
             WHERE id = ?
             """,
-            (vendor, amount, due_date, frequency, notes, bill_id)
+            (vendor, amount, due_date, frequency, notes, category, bill_id)
         )
 
         conn.commit()

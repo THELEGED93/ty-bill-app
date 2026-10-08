@@ -751,3 +751,8 @@ td.status-unpaid {
   object-fit: contain;
   margin: 6px auto 0;
 }
+
+#incomeModal .modal-content { 
+    max-height: 85vh;
+    overflow-y: auto;
+}
