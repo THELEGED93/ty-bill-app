@@ -304,13 +304,13 @@ td.status-unpaid {
 }
 
 .manage-cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.4rem;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center
 }
 
 .manage-cell form {
+    display: inline-block;
     margin: 0;
 }
 
@@ -719,6 +719,7 @@ td.status-unpaid {
     .page-watermark {
         width: 220px;
         height: 220px;
+        display: none;
     }
 }
 
@@ -755,4 +756,44 @@ td.status-unpaid {
 #incomeModal .modal-content { 
     max-height: 85vh;
     overflow-y: auto;
+}
+/* Compact bills table and full-details popup */
+.bill-table-hint { caption-side: top; text-align: left; padding: 10px 0; font-size: .95rem; font}
+.bill-details-trigger { background: transparent; color: #174d80; font: inherit; text-decoration: underline; padding: 8px 2px; }
+.bill-details-trigger:focus-visible, .bill-details-close:focus-visible { outline: 3px solid #0964be; outline-offset: 3px; }
+.bill-details-dialog { width: calc(100% - 24px); max-width: 500px; max-height: 85vh; overflow-y: auto; border: 0; border-radius: 12px; padding: 24px; background: white; color: #222; }
+.bill-details-dialog::backdrop { background: rgba(0,0,0,.55); }
+.bill-details-dialog h2 { font-size: 1.6rem; margin: 0 35px 18px 0; overflow-wrap: anywhere; }
+.bill-details-close { position: absolute; right: 10px; top: 8px; background: transparent; color: #222; font-size: 28px; min-height: 44px; min-width: 44px; }
+#billDetailsFields { display: grid; grid-template-columns: 100px minmax(0,1fr); gap: 12px; }
+#billDetailsFields dt { font-weight: bold; }
+#billDetailsFields dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.bill-details-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 20px; }
+.bill-details-actions form { margin: 0; }
+.bill-details-actions a, .bill-details-actions button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 12px; }
+@media (max-width: 768px) {
+    .saved-bills-table { width: 100%; min-width: 0; table-layout: fixed; }
+    .saved-bills-table col:nth-child(3),
+    .saved-bills-table col:nth-child(4),
+    .saved-bills-table col:nth-child(5),
+    .saved-bills-table col:nth-child(8),
+    .saved-bills-table th:nth-child(3),
+    .saved-bills-table th:nth-child(4),
+    .saved-bills-table th:nth-child(5),
+    .saved-bills-table th:nth-child(8),
+    .saved-bills-table td:nth-child(3),
+    .saved-bills-table td:nth-child(4),
+    .saved-bills-table td:nth-child(5),
+    .saved-bills-table td:nth-child(8) { display: none; }
+    .saved-bills-table col:nth-child(1) { width: 30%; }
+    .saved-bills-table .col-amount { width: 22%; }
+    .saved-bills-table .col-manage { width: 24%; }
+    .saved-bills-table .col-status { width: 24%; }
+    .saved-bills-table th { font-size: .9rem; padding: 8px 4px; }
+    .saved-bills-table td { padding: 8px 4px; overflow-wrap: anywhere; }
+    .saved-bills-table .manage-cell { display: table-cell; }
+    .saved-bills-table .manage-cell a,
+    .saved-bills-table .manage-cell button { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; width: 100%; margin: 2px 0; font-size: .85rem; }
+    .saved-bills-table .due-status { min-width: 0; max-width: 100%; white-space: normal; padding: 6px; }
+    .section-title { font-size: 1.8rem; }
 }

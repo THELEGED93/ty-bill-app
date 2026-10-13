@@ -431,6 +431,7 @@
 <div class="table-wrapper">
 
     <table class="saved-bills-table">
+        <caption class="bill-table-hint">Tap an amount to view the bill’s full details.</caption>
 
         <colgroup>
             <col class="col-vendor">
@@ -488,7 +489,7 @@
                         </td>
 
                     <td>
-                        ${{ "%.2f" | format(bill["amount"] | float) }}
+                        <button type="button" class="bill-details-trigger" aria-label="View details for {{ bill['vendor'] }}">${{ "%.2f" | format(bill["amount"] | float) }}</button>
                     </td>
 
                     <td>
@@ -654,6 +655,66 @@
         }
     });
 
+</script>
+
+
+<dialog id="billDetailsDialog" class="bill-details-dialog" aria-labelledby="billDetailsTitle">
+    <button type="button" class="bill-details-close" aria-label="Close bill details">&times;</button>
+    <h2 id="billDetailsTitle">Bill Details</h2>
+    <dl id="billDetailsFields"></dl>
+    <div id="billDetailsActions" class="bill-details-actions"></div>
+</dialog>
+
+<script>
+    const billDialog = document.getElementById('billDetailsDialog');
+    const billFields = document.getElementById('billDetailsFields');
+    const billActions = document.getElementById('billDetailsActions');
+
+    function showBillDetails(row) {
+        const cells = row.cells;
+        document.getElementById('billDetailsTitle').textContent = cells[0].querySelector('div').textContent;
+        billFields.replaceChildren();
+        const fields = [
+            ['Amount', cells[1].textContent.trim()],
+            ['Due Date', cells[2].textContent.trim()],
+            ['Frequency', cells[3].textContent.trim()],
+            ['Notes', cells[4].textContent.trim() || 'No notes'],
+            ['Status', cells[6].textContent.trim()]
+        ];
+        for (const [label, value] of fields) {
+            const term = document.createElement('dt');
+            const description = document.createElement('dd');
+            term.textContent = label;
+            description.textContent = value;
+            billFields.append(term, description);
+        }
+        billActions.replaceChildren();
+        // Reuse the existing Flask links and forms for this particular bill.
+        for (const control of cells[5].children) {
+            billActions.append(control.cloneNode(true));
+        }
+        billActions.append(cells[7].querySelector('form').cloneNode(true));
+        billDialog.showModal();
+    }
+
+    document.querySelectorAll('.saved-bills-table tbody tr').forEach(row => {
+        row.addEventListener('click', event => {
+            const amountButton = event.target.closest('.bill-details-trigger');
+            const anotherControl = event.target.closest('a, button, input, select, textarea, form');
+            if (amountButton || (window.matchMedia('(max-width: 768px)').matches && !anotherControl)) {
+                showBillDetails(row);
+            }
+        });
+    });
+    billDialog.querySelector('.bill-details-close').addEventListener('click', () => billDialog.close());
+    billDialog.addEventListener('click', event => {
+        const bounds = billDialog.getBoundingClientRect();
+        if (event.target === billDialog &&
+            (event.clientX < bounds.left || event.clientX > bounds.right ||
+             event.clientY < bounds.top || event.clientY > bounds.bottom)) {
+            billDialog.close();
+        }
+    });
 </script>
 
 {% endblock %}
