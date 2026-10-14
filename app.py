@@ -1,14 +1,178 @@
-from flask import Flask, render_template, request, redirect, url_for 
+from flask import (
+    Flask, render_template, request,
+    redirect, url_for, flash, abort, session
+)
+from flask_login import (
+    LoginManager, UserMixin, login_user,
+    logout_user, login_required, current_user
+)
+from flask_wtf.csrf import CSRFProtect
+from werkzeug.security import generate_password_hash, check_password_hash
+
 import sqlite3
-from datetime import date,datetime
+import os
+from pathlib import Path
+from datetime import date, datetime
+
 app = Flask(__name__)
 
+# Store a secret key locally so it survives app restarts.
+secret_path = Path(app.instance_path) / "secret_key"
+secret_path.parent.mkdir(parents=True, exist_ok=True)
+
+if not secret_path.exists():
+    secret_path.write_text(os.urandom(32).hex(), encoding="utf-8")
+
+app.config["SECRET_KEY"] = (
+    os.environ.get("SECRET_KEY")
+    or secret_path.read_text(encoding="utf-8").strip()
+)
+
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+# Set up login management.
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+# Prepare form protection; we'll activate it after updating the forms.
+csrf = CSRFProtect()
+csrf.init_app(app)
+
 def get_db_connection():
-    conn = sqlite3.connect("bills.db")
+    db_path = Path(app.root_path) / "bills.db"
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
-    return conn
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn 
+
+class User(UserMixin):
+    def __init__(self, row):
+        self.id = row["id"]
+        self.name = row["name"]
+        self.email = row["email"]
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        return None
+
+    conn = get_db_connection()
+
+    try:
+        row = conn.execute(
+            "SELECT id, name, email FROM users WHERE id = ?",
+            (user_id,)
+        ).fetchone()
+    finally:
+        conn.close()
+
+    return User(row) if row else None
+
+@app.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    logout_user()
+    session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("bills"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        conn = get_db_connection()
+
+        try:
+            row = conn.execute(
+                "SELECT * FROM users WHERE email = ?",
+                (email,)
+            ).fetchone()
+        finally:
+            conn.close()
+
+        if row is None or not check_password_hash(
+            row["password_hash"], password
+        ):
+            flash("Incorrect email or password.")
+            return render_template("login.html")
+
+        # Clear any previous session before signing in.
+        session.clear()
+        login_user(User(row))
+
+        return redirect(url_for("bills"))
+
+    return render_template("login.html")
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for("bills"))
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+
+        if not name or len(name) > 100:
+            flash("Enter a name between 1 and 100 characters.")
+            return render_template("register.html")
+
+        if (
+            len(email) > 254
+            or email.count("@") != 1
+            or not email.split("@")[0]
+            or "." not in email.split("@")[-1]
+            or any(character.isspace() for character in email)
+        ):
+            flash("Enter a valid email address.")
+            return render_template("register.html")
+
+        if not 12 <= len(password) <= 128:
+            flash("Use a password between 12 and 128 characters.")
+            return render_template("register.html")
+
+        if password != confirm_password:
+            flash("Your passwords do not match.")
+            return render_template("register.html")
+
+        password_hash = generate_password_hash(password)
+        conn = get_db_connection()
+
+        try:
+            conn.execute(
+                """
+                INSERT INTO users (name, email, password_hash)
+                VALUES (?, ?, ?)
+                """,
+                (name, email, password_hash)
+            )
+            conn.commit()
+        except sqlite3.IntegrityError:
+            conn.rollback()
+            flash("Unable to register with that email. Try logging in.")
+            return render_template("register.html")
+        finally:
+            conn.close()
+
+        flash("Account created. Please log in.")
+        return redirect(url_for("login"))
+
+    return render_template("register.html")
 
 @app.route("/bills", methods=["GET", "POST"])
+@login_required
 def bills():
     print("BILLS ROUTE:", app.root_path)
     print("CATEGORY IN TEMPLATE:", 'id="category"' in app.jinja_loader.get_source(app.jinja_env, "bills.html")[0])
@@ -26,10 +190,16 @@ def bills():
 
         conn.execute(
             """
-            INSERT INTO bills (vendor, amount, due_date, frequency, notes, category, paid)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO bills (
+                vendor, amount, due_date, frequency,
+                notes, category, paid, user_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (vendor, amount, due_date, frequency, notes, category, 0)
+            (
+                vendor, amount, due_date, frequency,
+                notes, category, 0, current_user.id
+            )
         )
 
         conn.commit()
@@ -41,37 +211,55 @@ def bills():
     
     active_filter = request.args.get("status", "all")
 
-    # Bills shown in the table, based on filter
+    # Show only this user's bills, based on the selected filter.
     if active_filter == "paid":
         bills = conn.execute(
-            "SELECT * FROM bills WHERE paid = 1 ORDER BY due_date ASC"
+            """
+            SELECT * FROM bills
+            WHERE user_id = ? AND paid = 1
+            ORDER BY due_date ASC
+            """,
+            (current_user.id,)
         ).fetchall()
 
     elif active_filter == "unpaid":
         bills = conn.execute(
             """
             SELECT * FROM bills
-            WHERE paid = 0 OR paid IS NULL
+            WHERE user_id = ? AND (paid = 0 OR paid IS NULL)
             ORDER BY due_date ASC
-            """
+            """,
+            (current_user.id,)
         ).fetchall()
 
     else:
         bills = conn.execute(
-            "SELECT * FROM bills ORDER BY due_date ASC"
+            """
+            SELECT * FROM bills
+            WHERE user_id = ?
+            ORDER BY due_date ASC
+            """,
+            (current_user.id,)
         ).fetchall()
 
-    # Use ALL bills for dashboard totals, not just filtered bills
+    # Dashboard totals include all bills belonging to this user.
     all_bills = conn.execute(
-        "SELECT * FROM bills ORDER BY due_date ASC"
+        """
+        SELECT * FROM bills
+        WHERE user_id = ?
+        ORDER BY due_date ASC
+        """,
+        (current_user.id,)
     ).fetchall()
 
     income_rows = conn.execute(
         """
         SELECT id, source, amount, frequency
         FROM income
+        WHERE user_id = ?
         ORDER BY source
-        """
+        """,
+        (current_user.id,)
     ).fetchall()
 
     monthly_income = 0
@@ -148,7 +336,7 @@ def bills():
 
         bill_list.append(bill_data)
 
-        conn.close()
+    conn.close()
 
     return render_template(
         "bills.html",
@@ -162,129 +350,174 @@ def bills():
     )
 
 @app.route("/delete/<int:bill_id>", methods=["POST"])
+@login_required
 def delete_bill(bill_id):
     conn = get_db_connection()
 
-    conn.execute("DELETE FROM bills WHERE id = ?", (bill_id,))
+    try:
+        result = conn.execute(
+            "DELETE FROM bills WHERE id = ? AND user_id = ?",
+            (bill_id, current_user.id)
+        )
 
-    conn.commit()
-    conn.close()
+        if result.rowcount == 0:
+            abort(404)
+
+        conn.commit()
+    finally:
+        conn.close()
 
     return redirect(url_for("bills"))
 
 @app.route("/toggle_paid_status/<int:bill_id>", methods=["POST"])
+@login_required
 def toggle_paid_status(bill_id):
     conn = get_db_connection()
 
-    bill = conn.execute(
-        "SELECT paid FROM bills WHERE id = ?",
-        (bill_id,)
-    ).fetchone()
+    try:
+        result = conn.execute(
+            """
+            UPDATE bills
+            SET paid = CASE WHEN paid = 1 THEN 0 ELSE 1 END
+            WHERE id = ? AND user_id = ?
+            """,
+            (bill_id, current_user.id)
+        )
 
-    new_paid_status = 0 if bill["paid"] else 1
+        if result.rowcount == 0:
+            abort(404)
 
-    print("Old paid status:", bill["paid"])
-    print("New paid status:", new_paid_status)
-
-    conn.execute(
-        "UPDATE bills SET paid = ? WHERE id = ?",
-        (new_paid_status, bill_id)
-    )
-
-    conn.commit()
-    conn.close()
+        conn.commit()
+    finally:
+        conn.close()
 
     return redirect(url_for("bills"))
 
 @app.route("/edit/<int:bill_id>", methods=["GET", "POST"])
+@login_required
 def edit_bill(bill_id):
     conn = get_db_connection()
 
-    if request.method == "POST":
-        vendor = request.form["vendor"]
-        amount = request.form["amount"]
-        due_date = request.form["due_date"]
-        frequency = request.form["frequency"]
-        notes = request.form["notes"]
-        category = request.form["category"]
+    try:
+        bill = conn.execute(
+            "SELECT * FROM bills WHERE id = ? AND user_id = ?",
+            (bill_id, current_user.id)
+        ).fetchone()
 
-        conn.execute(
-            """
-            UPDATE bills
-            SET vendor = ?, amount = ?, due_date = ?, frequency = ?, notes = ?, category = ?
-            WHERE id = ?
-            """,
-            (vendor, amount, due_date, frequency, notes, category, bill_id)
-        )
+        if bill is None:
+            abort(404)
 
-        conn.commit()
+        if request.method == "POST":
+            vendor = request.form["vendor"]
+            amount = request.form["amount"]
+            due_date = request.form["due_date"]
+            frequency = request.form["frequency"]
+            notes = request.form["notes"]
+            category = request.form["category"]
+
+            conn.execute(
+                """
+                UPDATE bills
+                SET vendor = ?, amount = ?, due_date = ?,
+                    frequency = ?, notes = ?, category = ?
+                WHERE id = ? AND user_id = ?
+                """,
+                (
+                    vendor, amount, due_date,
+                    frequency, notes, category,
+                    bill_id, current_user.id
+                )
+            )
+
+            conn.commit()
+            return redirect(url_for("bills"))
+
+        return render_template("edit_bill.html", bill=bill)
+
+    finally:
         conn.close()
 
-        return redirect(url_for("bills"))
-
-    bill = conn.execute(
-        "SELECT * FROM bills WHERE id = ?",
-        (bill_id,)
-    ).fetchone()
-
-    conn.close()
-
-    return render_template("edit_bill.html", bill=bill)
-
 @app.route("/income/add", methods=["POST"])
+@login_required
 def add_income():
     source = request.form["source"]
     amount = float(request.form["amount"])
     frequency = request.form["frequency"]
+    received_date = request.form.get("received_date") or None
 
-    conn = sqlite3.connect("bills.db")
+    conn = get_db_connection()
 
-    conn.execute(
-        """
-        INSERT INTO income (source, amount, frequency)
-        VALUES (?, ?, ?)
-        """,
-        (source, amount, frequency)
-    )
+    try:
+        conn.execute(
+            """
+            INSERT INTO income (
+                source, amount, frequency, received_date, user_id
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                source, amount, frequency,
+                received_date, current_user.id
+            )
+        )
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+    finally:
+        conn.close()
 
     return redirect(url_for("bills"))
 
 @app.route("/income/edit/<int:income_id>", methods=["POST"])
+@login_required
 def edit_income(income_id):
-    source = request.form["source"]
-    amount = float(request.form["amount"])
-    frequency = request.form["frequency"]
-
     conn = get_db_connection()
 
-    conn.execute(
-        """
-        UPDATE income
-        SET source = ?, amount = ?, frequency = ?
-        WHERE id = ?
-        """,
-        (source, amount, frequency, income_id)
-    )
+    try:
+        income = conn.execute(
+            "SELECT id FROM income WHERE id = ? AND user_id = ?",
+            (income_id, current_user.id)
+        ).fetchone()
 
-    conn.commit()
-    conn.close()
+        if income is None:
+            abort(404)
+
+        source = request.form["source"]
+        amount = float(request.form["amount"])
+        frequency = request.form["frequency"]
+
+        conn.execute(
+            """
+            UPDATE income
+            SET source = ?, amount = ?, frequency = ?
+            WHERE id = ? AND user_id = ?
+            """,
+            (source, amount, frequency, income_id, current_user.id)
+        )
+
+        conn.commit()
+    finally:
+        conn.close()
 
     return redirect(url_for("bills"))
 
+
 @app.route("/income/delete/<int:income_id>", methods=["POST"])
+@login_required
 def delete_income(income_id):
     conn = get_db_connection()
 
-    conn.execute(
-        "DELETE FROM income WHERE id = ?",
-        (income_id,)
-    )
+    try:
+        result = conn.execute(
+            "DELETE FROM income WHERE id = ? AND user_id = ?",
+            (income_id, current_user.id)
+        )
 
-    conn.commit()
-    conn.close()
+        if result.rowcount == 0:
+            abort(404)
+
+        conn.commit()
+    finally:
+        conn.close()
 
     return redirect(url_for("bills"))
 

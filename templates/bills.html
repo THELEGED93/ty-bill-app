@@ -11,6 +11,7 @@
         <h2 class="section-title">Add a New Bill</h2>
 
         <form method="POST" action="/bills">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="form-group">
                 <label for="vendor">Vendor</label>
@@ -225,6 +226,7 @@
             method="POST"
             action="{{ url_for('add_income') }}"
         >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="form-group">
 
@@ -366,6 +368,7 @@
                                 action="{{ url_for('delete_income', income_id=income['id']) }}"
                                 onsubmit="return confirm('Delete this income source?');"
                             >
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button
                                     type="submit"
                                     class="btn-delete-income"
@@ -519,6 +522,7 @@
                             action="{{ url_for('delete_bill', bill_id=bill['id']) }}"
                             onsubmit="return confirm('Delete this bill?');"
                         >
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button
                                 type="submit"
                                 class="btn-delete"
@@ -560,6 +564,7 @@
                             method="POST"
                             action="{{ url_for('toggle_paid_status', bill_id=bill['id']) }}"
                         >
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                             {% if bill["paid"] %}
 

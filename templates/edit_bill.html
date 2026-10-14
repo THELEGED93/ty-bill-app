@@ -6,6 +6,7 @@
     <h2 class="section-title">Edit Bill</h2>
 
     <form method="POST" class="edit-bill-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="form-group">
             <label for="vendor">Vendor</label>

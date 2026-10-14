@@ -9,6 +9,25 @@
 <body>
     <header>
         <h1>Ty Bill App</h1>
+
+        <nav aria-label="Account">
+            {% if current_user.is_authenticated %}
+                <span>Hello, {{ current_user.name }}</span>
+
+                <a href="{{ url_for('bills') }}">My Bills</a>
+
+                <form method="POST"
+                    action="{{ url_for('logout') }}"
+                    style="display: inline-block;">
+                    <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+                    <button type="submit">Log Out</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('login') }}">Log In</a>
+                <a href="{{ url_for('register') }}">Create Account</a>
+            {% endif %}
+        </nav>
     </header>
  
     <main>
