@@ -80,6 +80,9 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+@app.route("/")
+def home():
+    return redirect(url_for("login"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
