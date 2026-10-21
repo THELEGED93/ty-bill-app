@@ -1,11 +1,6 @@
-import sqlite3
+"""Safely initialize the same database used by the application."""
+from app import app, initialize_database
 
-connection = sqlite3.connect("bills.db")
-
-with open("schema.sql") as f:
-    connection.executescript(f.read())
-
-connection.commit()
-connection.close()
-
-print("Database initialized successfully.")
+if __name__ == "__main__":
+    initialize_database()
+    print(f"Database ready: {app.config['DATABASE']}")

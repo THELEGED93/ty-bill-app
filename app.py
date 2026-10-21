@@ -16,17 +16,30 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 
-# Store a secret key locally so it survives app restarts.
-secret_path = Path(app.instance_path) / "secret_key"
-secret_path.parent.mkdir(parents=True, exist_ok=True)
+# Keep Azure runtime data outside the temporary deployment directory.
+# Local development continues using bills.db beside this file.
+is_azure = bool(os.environ.get("WEBSITE_SITE_NAME"))
+data_dir = Path(os.environ.get("TYBILL_DATA_DIR") or (
+    "/home/tybill-data" if is_azure else app.root_path
+)).expanduser().resolve()
+data_dir.mkdir(parents=True, exist_ok=True)
+app.config["DATABASE"] = str(data_dir / "bills.db")
 
-if not secret_path.exists():
-    secret_path.write_text(os.urandom(32).hex(), encoding="utf-8")
-
-app.config["SECRET_KEY"] = (
-    os.environ.get("SECRET_KEY")
-    or secret_path.read_text(encoding="utf-8").strip()
+secret_path = (
+    data_dir / "secret_key" if is_azure or os.environ.get("TYBILL_DATA_DIR")
+    else Path(app.instance_path) / "secret_key"
 )
+if os.environ.get("SECRET_KEY"):
+    app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
+else:
+    secret_path.parent.mkdir(parents=True, exist_ok=True)
+    # Exclusive creation avoids replacing a key already on disk.
+    try:
+        with secret_path.open("x", encoding="utf-8") as key_file:
+            key_file.write(os.urandom(32).hex())
+    except FileExistsError:
+        pass
+    app.config["SECRET_KEY"] = secret_path.read_text(encoding="utf-8").strip()
 
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -41,11 +54,54 @@ csrf = CSRFProtect()
 csrf.init_app(app)
 
 def get_db_connection():
-    db_path = Path(app.root_path) / "bills.db"
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(app.config["DATABASE"], timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn 
+
+def initialize_database():
+    """Create missing tables; never drop tables or replace existing records."""
+    conn = get_db_connection()
+    try:
+        with conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                    password_hash TEXT NOT NULL
+                )
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS bills (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    vendor TEXT NOT NULL,
+                    amount REAL NOT NULL,
+                    due_date TEXT NOT NULL,
+                    frequency TEXT NOT NULL,
+                    notes TEXT,
+                    category TEXT,
+                    paid INTEGER NOT NULL DEFAULT 0,
+                    user_id INTEGER REFERENCES users(id)
+                )
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS income (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    source TEXT NOT NULL,
+                    amount REAL NOT NULL,
+                    frequency TEXT NOT NULL,
+                    received_date TEXT,
+                    user_id INTEGER REFERENCES users(id)
+                )
+            """)
+    finally:
+        conn.close()
+
+
+# Gunicorn imports this module, so initialization must be outside __main__.
+initialize_database()
+
 
 class User(UserMixin):
     def __init__(self, row):
@@ -177,8 +233,6 @@ def register():
 @app.route("/bills", methods=["GET", "POST"])
 @login_required
 def bills():
-    print("BILLS ROUTE:", app.root_path)
-    print("CATEGORY IN TEMPLATE:", 'id="category"' in app.jinja_loader.get_source(app.jinja_env, "bills.html")[0])
     if request.method == "POST":
         vendor = request.form.get("vendor")
         amount = request.form.get("amount")
@@ -187,7 +241,6 @@ def bills():
         notes = request.form.get("notes")
         category = request.form.get("category")
 
-        print("FORM DATA:", request.form)
 
         conn = get_db_connection()
 
